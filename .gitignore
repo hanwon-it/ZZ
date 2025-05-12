@@ -1,0 +1,8 @@
+# node_modules 무시
+node_modules
+
+# .txt 파일 무시
+*.txt
+
+# .png 파일 무시
+*.png
