@@ -36,6 +36,8 @@ io.on("connection", (socket) => {
     const msg = { user: "system", text: `${nickname}님이 입장하셨습니다.` };
     io.to(channel).emit("message", msg);
     console.log("nickname: ", nickname, "channel: ", channel);
+
+    updateUserList();
   });
 
   socket.on("chat", ({ text, to }) => {
@@ -56,8 +58,15 @@ io.on("connection", (socket) => {
       };
       io.to(user.channel).emit("message", msg);
       delete users[socket.id];
+
+      updateUserList();
     }
   });
+
+  function updateUserList() {
+    const userList = Object.values(users); // [{nickname, channel}, ...]
+    io.emit("userList", userList);
+  }
 });
 
 server.listen(3000, () => {
