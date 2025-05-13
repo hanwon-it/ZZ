@@ -23,9 +23,28 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, "public")));
 
+const users = {};
+const channels = ["lobby", "sports", "programming", "music"];
+
 io.on("connection", (socket) => {
   socket.on("join", ({ nickname, channel }) => {
+    socket.nickname = nickname;
+    socket.channel = channel;
+    users[socket.id] = { nickname, channel };
+    socket.join(channel);
+
+    const msg = { user: "system", text: `${nickname}님이 입장하셨습니다.` };
+    io.to(channel).emit("message", msg);
     console.log("nickname: ", nickname, "channel: ", channel);
+  });
+
+  socket.on("chat", ({ text, to }) => {
+    const sender = users[socket.id];
+    if (!sender) return;
+    const payload = { user: sender.nickname, text };
+
+    // 귓속말 처리해야 함
+    io.to(sender.channel).emit("message", payload);
   });
 });
 
