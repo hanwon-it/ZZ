@@ -46,6 +46,18 @@ io.on("connection", (socket) => {
     // 귓속말 처리해야 함
     io.to(sender.channel).emit("message", payload);
   });
+
+  socket.on("disconnect", () => {
+    const user = users[socket.id];
+    if (user) {
+      const msg = {
+        user: "system",
+        text: `${user.nickname}님이 퇴장하셨습니다`,
+      };
+      io.to(user.channel).emit("message", msg);
+      delete users[socket.id];
+    }
+  });
 });
 
 server.listen(3000, () => {
