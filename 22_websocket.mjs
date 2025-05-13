@@ -45,8 +45,19 @@ io.on("connection", (socket) => {
     if (!sender) return;
     const payload = { user: sender.nickname, text };
 
-    // 귓속말 처리해야 함
-    io.to(sender.channel).emit("message", payload);
+    if (to) {
+      const receiverSocket = Object.entries(users).find(
+        ([id, u]) => u.nickname === to
+      )?.[0]; // [0] 소켓 id
+      // ?. -> (옵셔널 체이닝): 값이 undifined일 경우 에러 없이
+      // 넘어가게 함( 사용자가 없을 수도 있으니 안전하게 접근)
+      if (receiverSocket) {
+        io.to(receiverSocket).emit("whisper", payload);
+        socket.emit("whisper", payload);
+      }
+    } else {
+      io.to(sender.channel).emit("message", payload);
+    }
   });
 
   socket.on("disconnect", () => {

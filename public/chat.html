@@ -1,4 +1,4 @@
-s<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -157,6 +157,7 @@ s<!DOCTYPE html>
           const div = document.createElement("div");
           div.innerHTML = `<span class="online-dot"></span><strong>${nickname}</strong> (${channel})`;
           users.appendChild(div);
+          div.onclick = () => (toInput.value = nickname);
 
           if (!channelMap[channel]) channelMap[channel] = 0;
           channelMap[channel]++;
@@ -167,6 +168,13 @@ s<!DOCTYPE html>
           Object.entries(channelMap)
             .map(([ch, count]) => `${ch}: ${count}명`)
             .join("<br>");
+      });
+
+      socket.on("whisper", ({ user, text }) => {
+        const div = document.createElement("div");
+        div.textContent = `(귓속말) [${user}] ${text}`;
+        div.style.color = "deeppink";
+        messages.appendChild(div);
       });
     </script>
   </body>
