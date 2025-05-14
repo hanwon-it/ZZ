@@ -38,7 +38,7 @@ function logMessage(channel, message) {
   const file = path.join(logsDir, `${channel}.json`);
   const log = getLog(channel);
   log.push(message);
-  fs.writeFileSync(file.JSON.stringify(log, null, 2));
+  fs.writeFileSync(file, JSON.stringify(log, null, 2));
 }
 
 io.on("connection", (socket) => {
@@ -50,7 +50,11 @@ io.on("connection", (socket) => {
 
     const msg = { user: "system", text: `${nickname}님이 입장하셨습니다.` };
     io.to(channel).emit("message", msg);
-    console.log("nickname: ", nickname, "channel: ", channel);
+    // console.log("nickname: ", nickname, "channel: ", channel);
+    logMessage(channel, msg);
+
+    const previousLog = getLog(channel);
+    socket.emit("chatLog", previousLog);
 
     updateUserList();
   });
@@ -72,6 +76,7 @@ io.on("connection", (socket) => {
       }
     } else {
       io.to(sender.channel).emit("message", payload);
+      logMessage(sender.channel, payload);
     }
   });
 
@@ -89,6 +94,10 @@ io.on("connection", (socket) => {
 
     const joinMsg = { user: "system", text: `${nickname}님이 입장하셨습니다` };
     io.to(newChannel).emit("message", joinMsg);
+    logMessage(newChannel, joinMsg);
+
+    const previousLog = getLog(newChannel);
+    socket.emit("chatLog", previousLog);
 
     updateUserList();
   });
@@ -101,6 +110,7 @@ io.on("connection", (socket) => {
         text: `${user.nickname}님이 퇴장하셨습니다`,
       };
       io.to(user.channel).emit("message", msg);
+      logMessage(user.channel, msg);
       delete users[socket.id];
 
       updateUserList();

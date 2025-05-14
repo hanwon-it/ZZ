@@ -163,6 +163,15 @@
         };
       });
 
+      socket.on("chatLog", (log) => {
+        log.forEach(({ user, text }) => {
+          const div = document.createElement("div");
+          div.textContent = `[${user}] ${text}`;
+          if (user === "system") div.className = "system-msg";
+          messages.appendChild(div);
+        });
+      });
+
       socket.emit("join", { nickname, channel: currentChannel });
 
       socket.on("message", ({ user, text }) => {
