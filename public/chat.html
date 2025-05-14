@@ -139,6 +139,30 @@
         if (e.key === "Enter") sendMessage();
       });
 
+      channelSelector.onchange = () => {
+        const newChannel = channelSelector.value;
+        if (newChannel !== currentChannel) {
+          socket.emit("changeChannel", { newChannel });
+          currentChannel = newChannel;
+          channelName.textContent = `[채널: ${currentChannel}]`;
+          messages.innerHTML = "";
+        }
+      };
+
+      emojiBtn.onclick = () => {
+        emojiBox.style.display =
+          emojiBox.style.display === "block" ? "none" : "block";
+        emojiBox.style.top = emojiBtn.offsetTop - 50 + "px";
+        emojiBox.style.left = emojiBtn.offsetLeft + 0 + "px";
+      };
+
+      emojiBox.querySelectorAll("span").forEach((span) => {
+        span.onclick = () => {
+          messageInput.value += span.textContent;
+          emojiBox.style.display = "none";
+        };
+      });
+
       socket.emit("join", { nickname, channel: currentChannel });
 
       socket.on("message", ({ user, text }) => {
